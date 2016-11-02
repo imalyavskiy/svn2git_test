@@ -1,56 +1,43 @@
-import os
 import sys
-import subprocess
+import os.path
+import subversion_tools as svn
 
 
-def run_subversion(args):
-    pipe = subprocess.PIPE
-    output = subprocess.Popen("svn "+args, shell=True, stdin=pipe, stdout=pipe, stderr=subprocess.STDOUT).stdout.read()
-    if 0 == len(output):
-        return ""
-    return output.decode('utf8', 'ignore')
-
-
-def check_svn():
-    output = run_subversion("--version")
-    if output.startswith("svn, version"):
-        return True
-    return False
-
-
-def check_svn_control(path):
-    output = run_subversion("info "+path)
-    if output.startswith("Path:"):
-        return True
-    return False
-
-
-def print_properties(path):
-    output = run_subversion("propget svn:externals " + path)
-    if output.startswith("svn: warning: W200017:"):
-        return
-    print(path)
-    print("\t{0}".format(output))
-    return
+def is_path(path):
+# use regexp https://docs.python.org/3/howto/regex.html
+# to determine does this string is a path
+    pass
 
 
 def process_directory(path):
     path += "/"
 
-    if not check_svn_control(path):
+    if not svn.is_controlled(path):
         return
 
-    print_properties(path)
+    externals = svn.propget_recursive(path=path, prop="svn:externals")
+    externals = externals.replace(" - ", "\r\n")
+    strings = externals.split(sep="\r\n")
+    strings_new = []
+    for string in strings:
+        if 0 == len(string):
+            continue
 
-    for entry in os.scandir(path):
-        if not entry.name.startswith('.') and not entry.is_file():
-            process_directory(path + entry.name)
+        strings_new.append(string)
 
+    strings = strings_new
+    del strings_new
+
+    for string in strings:
+        if is_path(string):
+            pass
+        else:
+            pass
     return
 
 
 def main():
-    if not check_svn():
+    if not svn.check_access():
         print("Subversion client does not installed.")
         exit()
     else:
@@ -62,7 +49,7 @@ def main():
 
     print("Directory to process: {0}".format(sys.argv[1]))
 
-    if not check_svn_control(sys.argv[1]):
+    if not svn.is_controlled(sys.argv[1]):
         print("This folder is not an SVN working copy.")
         exit()
 
