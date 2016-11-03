@@ -1,12 +1,16 @@
 import sys
-import os.path
 import subversion_tools as svn
+import git_tools as git
+import re
+# use regexp https://docs.python.org/3/howto/regex.html
 
 
 def is_path(path):
-# use regexp https://docs.python.org/3/howto/regex.html
-# to determine does this string is a path
-    pass
+    p = re.compile("([A-Za-z]:)?(((\\\\)|(/))[\w.]*)*((\\\\)|(/))?")
+    m = p.match(path)
+    if m.group() == path:
+        return True
+    return False
 
 
 def process_directory(path):
@@ -38,14 +42,25 @@ def process_directory(path):
 
 def main():
     if not svn.check_access():
-        print("Subversion client does not installed.")
+        print("Subversion client does not installed.\r\nOr not added to \"path\" environment variable.")
         exit()
     else:
-        print("Subversion  [ OK ].")
+        print("[ OK ].....Subversion")
+
+    if not git.check_access():
+        print("Git client does not installed.\r\nOr not added to \"path\" environment variable.")
+        exit()
+    else:
+        print("[ OK ].....Git")
 
     if len(sys.argv) < 2:
-        print("Not enough parameters.")
+        print("[FAIL].....Not enough parameters.")
         exit()
+
+    if is_path(sys.argv[1]):
+        print("[ OK ].....Argument")
+    else:
+        print("[FAIL].....Argument: not in a windows path format")
 
     print("Directory to process: {0}".format(sys.argv[1]))
 
@@ -61,4 +76,5 @@ def main():
     return
 
 main()
+
 exit()
