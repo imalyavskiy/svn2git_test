@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import subprocess
 
 
@@ -6,7 +7,7 @@ def run(args):
     output = subprocess.Popen("svn "+args, shell=True, stdin=pipe, stdout=pipe, stderr=subprocess.STDOUT).stdout.read()
     if 0 == len(output):
         return ""
-    return output.decode('utf8', 'ignore')
+    return output.decode('cp1251', 'replace')
 
 
 def check_access():
