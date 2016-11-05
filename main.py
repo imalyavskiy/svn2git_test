@@ -7,7 +7,6 @@ import re
 
 
 def is_path(path):
-    print("is_path >>> Check: \"{0}\"".format(path))
     p = re.compile("([A-Za-z]:)?(((\\\\)|(/))[\w.]*)*((\\\\)|(/))?") # "[d:]<\|/><dir name><\|/><dir name>[\|/]"
     m = p.match(path)
     if m.group() == path:
@@ -17,6 +16,7 @@ def is_path(path):
 
 def is_external_prop(string):
     p = re.compile(
+                   "(^\s*)?"
                    "(-r\s\d+\s)?"           # -r 122
                    "((http(s)?://)|(\^/))"  # "https://" or "^/"
                    "(/?((\w|%|-)+\.?)+)+"   # server.com/folder.f/folder
@@ -39,19 +39,10 @@ def process_directory(path):
         return
 
     externals = svn.propget_recursive(path=path, prop="svn:externals")
-    externals = externals.replace(" - ", "\r\n")
-    strings = externals.split(sep="\r\n")
-
-    strings_new = []
-    for string in strings:
-        if 0 == len(string):
-            continue
-        strings_new.append(string)
-
-    strings = strings_new
-    del strings_new
-
-    print(strings)
+    externals = externals.replace("\r\n", "\n")
+    externals = externals.replace(" - ", "\n")
+    externals = externals.replace("\n\n", "\n")
+    strings   = externals.split(sep="\n")
 
     for string in strings:
         if is_path(string):
