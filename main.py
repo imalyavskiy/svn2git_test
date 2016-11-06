@@ -8,7 +8,7 @@ import re
 class PropItem:
     def __init__(self):
         self.old_rev = re.compile(
-            "-r\s\d+"
+            "-r\s?\d+"
         )
         self.rev_num = re.compile(
             "\d+"
@@ -29,47 +29,45 @@ class PropItem:
         pass
 
     def split(self, string):
-        src_url     = str()
-        old_rev_val = str()
-        new_rev_val = str()
-        dst_path    = str()
+        rev_val = "HEAD"
         m = self.old_rev.search(string)
         if m is not None:
             old_rev = string[m.span()[0]:m.span()[1]]
             string = string[m.span()[1]: -1]
             string = self.leading_space.sub("", string)
-
             m = self.rev_num.search(old_rev)
             if m is not None:
-                old_rev_val = old_rev[m.span()[0]: m.span()[1]]
+                rev_val = old_rev[m.span()[0]: m.span()[1]]
 
         m = self.src_url.search(string)
-        if m is not None:
-            src_url = string[m.span()[0]:m.span()[1]]
-            string = string[m.span()[1]: -1]
-            string = self.leading_space.sub("", string)
+        if m is None:
+            return None
+
+        src_url = string[m.span()[0]:m.span()[1]]
+        string = string[m.span()[1]: -1]
+        string = self.leading_space.sub("", string)
 
         m = self.new_rev.search(string)
         if m is not None:
             new_rev = string[m.span()[0]:m.span()[1]]
-            m = self.rev_num.search(new_rev)
-            if m is not None:
-                new_rev_val = new_rev[m.span()[0]: m.span()[1]]
-
             string = string[m.span()[1]: -1]
             string = self.leading_space.sub("", string)
+            m = self.rev_num.search(new_rev)
+            if m is not None:
+                if rev_val == "HEAD":
+                    rev_val = new_rev[m.span()[0]: m.span()[1]]
+                elif rev_val != m.group():
+                    print("[WARN] old and new revisions are !EQ - taking NEW one")
+                    rev_val = new_rev[m.span()[0]: m.span()[1]]
+#                    return None
 
         m = self.dst_path.search(string)
-        if m is not None:
-            dst_path = string[m.span()[0]:m.span()[1]]
-
-        if not len(src_url) or not len(dst_path) or (len(old_rev_val) and len(new_rev_val) and old_rev_val != new_rev_val):
+        if m is None:
             return None
-        elif not (len(old_rev_val) or len(new_rev_val)):
-            return src_url, "HEAD", dst_path
-        elif not len(old_rev_val):
-            return src_url, new_rev_val, dst_path
-        return src_url, old_rev_val, dst_path
+
+        dst_path = string[m.span()[0]:m.span()[1]]
+
+        return src_url, rev_val, dst_path
 
 
 class Svn2GitAdapter:
