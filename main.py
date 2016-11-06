@@ -5,22 +5,88 @@ import git_tools as git
 import re
 # use regexp https://docs.python.org/3/howto/regex.html
 
+class PropItem:
+    def __init__(self):
+        self.old_rev = re.compile(
+            "-r\s\d+"
+        )
+        self.rev_num = re.compile(
+            "\d+"
+        )
+        self.src_url = re.compile(
+            "((http(s)?://)|(\^/))"     # "https://" or "^/"
+            "(/?((\w|%|-)+\.?)+)+"      # server.com/folder.f/folder
+        )
+        self.new_rev = re.compile(
+            "@\d+"                   # @122
+        )
+        self.dst_path = re.compile(
+            "(/?((\w|-)+\.?)+)+"  # folder/folder
+        )
+        self.leading_space = re.compile(
+            "^\s"
+        )
+        pass
+
+    def split(self, string):
+        src_url     = str()
+        old_rev_val = str()
+        new_rev_val = str()
+        dst_path    = str()
+        m = self.old_rev.search(string)
+        if m is not None:
+            old_rev = string[m.span()[0]:m.span()[1]]
+            string = string[m.span()[1]: -1]
+            string = self.leading_space.sub("", string)
+
+            m = self.rev_num.search(old_rev)
+            if m is not None:
+                old_rev_val = old_rev[m.span()[0]: m.span()[1]]
+
+        m = self.src_url.search(string)
+        if m is not None:
+            src_url = string[m.span()[0]:m.span()[1]]
+            string = string[m.span()[1]: -1]
+            string = self.leading_space.sub("", string)
+
+        m = self.new_rev.search(string)
+        if m is not None:
+            new_rev = string[m.span()[0]:m.span()[1]]
+            m = self.rev_num.search(new_rev)
+            if m is not None:
+                new_rev_val = new_rev[m.span()[0]: m.span()[1]]
+
+            string = string[m.span()[1]: -1]
+            string = self.leading_space.sub("", string)
+
+        m = self.dst_path.search(string)
+        if m is not None:
+            dst_path = string[m.span()[0]:m.span()[1]]
+
+        if not len(src_url) or not len(dst_path) or (len(old_rev_val) and len(new_rev_val) and old_rev_val != new_rev_val):
+            return None
+        elif not (len(old_rev_val) or len(new_rev_val)):
+            return src_url, "HEAD", dst_path
+        elif not len(old_rev_val):
+            return src_url, new_rev_val, dst_path
+        return src_url, old_rev_val, dst_path
+
 
 class Svn2GitAdapter:
     def __init__(self):
         self.re_fs_path = \
             re.compile(
-                       "([A-Za-z]:)?(((\\\\)|(/))[\w.]*)*((\\\\)|(/))?" # "[d:]<\|/><dir name><\|/><dir name>[\|/]"
+                      "([A-Za-z]:)?(((\\\\)|(/))[\w.]*)*((\\\\)|(/))?" # "[d:]<\|/><dir name><\|/><dir name>[\|/]"
             )
         self.re_svn_ext_prop = \
             re.compile(
-                       "(^\s*)?"
-                       "(-r\s\d+\s)?"           # -r 122
-                       "((http(s)?://)|(\^/))"  # "https://" or "^/"
-                       "(/?((\w|%|-)+\.?)+)+"   # server.com/folder.f/folder
-                       "(@\d+)?"                # @122
-                       "\s"                     # space
-                       "(/?((\w|-)+\.?)+)+"     # folder/folder
+                      "(^\s*)?"
+                      "(-r\s\d+\s)?"           # -r 122
+                      "((http(s)?://)|(\^/))"  # "https://" or "^/"
+                      "(/?((\w|%|-)+\.?)+)+"   # server.com/folder.f/folder
+                      "(@\d+)?"                # @122
+                      "\s"                     # space
+                      "(/?((\w|-)+\.?)+)+"     # folder/folder
             )
         self.re_svn_folder_hdr = \
             re.compile(
@@ -31,6 +97,7 @@ class Svn2GitAdapter:
                       "^\s*svn:\w*"
             )
         self.results = dict()
+        self.prop_item = PropItem()
 
     def is_path(self, path):
         m = self.re_fs_path.match(path)
@@ -73,22 +140,27 @@ class Svn2GitAdapter:
             elif self.is_prop_name(string):
                 pass
             elif self.is_prop_val(string):
-                folders[f_name].append(string)
+                folders[f_name].append(self.prop_item.split(string))
             else:
                 pass
 
         self.results[path] = folders
         return
 
-    def print(self):
+    def __str__(self):
+        result = str()
         parents = self.results.keys()
         for parent in parents:
-            print("{0}".format(parent))
+            result += parent + "\n"
             folders = self.results[parent].keys()
             for folder in folders:
-                print("\t{0}".format(folder))
+                result += "\t" + folder + "\n"
                 for value in self.results[parent][folder]:
-                    print("\t\t{0}".format(value))
+                    if value is None:
+                        result += "\t\t ERROR \n"
+                    else:
+                        result += "\t\t" + value[0] + " | " + value[1] + " | " + value[2] + "\n"
+        return result
 
 
 def main():
@@ -126,7 +198,7 @@ def main():
 
     adapter.process_directory(sys.argv[1])
 
-    adapter.print()
+    print(adapter)
 
     print(">>> Done.")
     return
