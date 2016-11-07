@@ -41,6 +41,32 @@ def controlled(path):
         return True
     return False
 
+
+def repository_info(path):
+    result = Client().run("info " + path)
+    result = result.replace("\r\n", "\n")
+    result = result.replace(" - ", "\n")
+    result = result.replace("\n\n", "\n")
+    strings = result.split(sep="\n")
+
+    hdr_url_root = "Repository Root: "
+    hdr_url_repo_rel = "Relative URL: "
+    hdr_path_wrk_cpy_root = "Path: "
+
+    url_root = ""
+    url_repo_rel = ""
+    path_wrk_cpy_root = ""
+
+    for string in strings:
+        if string.startswith(hdr_url_root):
+            url_root = string[len(hdr_url_root):]
+        if string.startswith(hdr_url_repo_rel):
+            url_repo_rel = string[len(hdr_url_repo_rel):]
+        if string.startswith(hdr_path_wrk_cpy_root):
+            path_wrk_cpy_root = string[len(hdr_path_wrk_cpy_root):]
+
+    return url_root, url_repo_rel, path_wrk_cpy_root
+
 if __name__ == "__main__":
     print("[FAIL] This script cannot be run directly.")
 

@@ -2,206 +2,70 @@
 import sys
 import subversion_tools as svn
 import git_tools as git
-import re
+import svn2git_adapter as svn2git
 # use regexp https://docs.python.org/3/howto/regex.html
-
-class PropItem:
-    def __init__(self):
-        self.old_rev = re.compile(
-            "-r\s?\d+"
-        )
-        self.rev_num = re.compile(
-            "\d+"
-        )
-        self.src_url = re.compile(
-            "((http(s)?://)|(\^/))"     # "https://" or "^/"
-            "(/?((\w|%|-)+\.?)+)+"      # server.com/folder.f/folder
-        )
-        self.new_rev = re.compile(
-            "@\d+"                   # @122
-        )
-        self.dst_path = re.compile(
-            "(/?((\w|-)+\.?)+)+"  # folder/folder
-        )
-        self.leading_space = re.compile(
-            "^\s"
-        )
-        pass
-
-    def split(self, string):
-        rev_val = "HEAD"
-        m = self.old_rev.search(string)
-        if m is not None:
-            old_rev = string[m.span()[0]:m.span()[1]]
-            string = string[m.span()[1]: -1]
-            string = self.leading_space.sub("", string)
-            m = self.rev_num.search(old_rev)
-            if m is not None:
-                rev_val = old_rev[m.span()[0]: m.span()[1]]
-
-        m = self.src_url.search(string)
-        if m is None:
-            return None
-
-        src_url = string[m.span()[0]:m.span()[1]]
-        string = string[m.span()[1]: -1]
-        string = self.leading_space.sub("", string)
-
-        m = self.new_rev.search(string)
-        if m is not None:
-            new_rev = string[m.span()[0]:m.span()[1]]
-            string = string[m.span()[1]: -1]
-            string = self.leading_space.sub("", string)
-            m = self.rev_num.search(new_rev)
-            if m is not None:
-                if rev_val == "HEAD":
-                    rev_val = new_rev[m.span()[0]: m.span()[1]]
-                elif rev_val != m.group():
-                    print("[WARN] old and new revisions are !EQ - taking NEW one")
-                    rev_val = new_rev[m.span()[0]: m.span()[1]]
-#                    return None
-
-        m = self.dst_path.search(string)
-        if m is None:
-            return None
-
-        dst_path = string[m.span()[0]:m.span()[1]]
-
-        return src_url, rev_val, dst_path
-
-
-class Svn2GitAdapter:
-    def __init__(self):
-        self.re_fs_path = \
-            re.compile(
-                      "([A-Za-z]:)?(((\\\\)|(/))[\w.]*)*((\\\\)|(/))?" # "[d:]<\|/><dir name><\|/><dir name>[\|/]"
-            )
-        self.re_svn_ext_prop = \
-            re.compile(
-                      "(^\s*)?"
-                      "(-r\s\d+\s)?"           # -r 122
-                      "((http(s)?://)|(\^/))"  # "https://" or "^/"
-                      "(/?((\w|%|-)+\.?)+)+"   # server.com/folder.f/folder
-                      "(@\d+)?"                # @122
-                      "\s"                     # space
-                      "(/?((\w|-)+\.?)+)+"     # folder/folder
-            )
-        self.re_svn_folder_hdr = \
-            re.compile(
-                      "Properties on \'.*\':"
-            )
-        self.re_svn_property_name = \
-            re.compile(
-                      "^\s*svn:\w*"
-            )
-        self.results = dict()
-        self.prop_item = PropItem()
-
-    def is_path(self, path):
-        m = self.re_fs_path.match(path)
-        if m.group() == path:
-            return True
-        return False
-
-    def check_match(self, reg_exp, string):
-        m = reg_exp.match(string)
-        if m is None:
-            return False
-        if m.group() == string:
-            return True
-        return False
-
-    def is_folder_hdr(self, string):
-        return self.check_match(self.re_svn_folder_hdr, string)
-
-    def is_prop_name(self, string):
-        return self.check_match(self.re_svn_property_name, string)
-
-    def is_prop_val(self, string):
-        return self.check_match(self.re_svn_ext_prop, string)
-
-    def process_directory(self, path):
-        path += "/"
-
-        if not svn.controlled(path):
-            return
-        svn_client = svn.Client()
-        externals = svn_client.propget_recursive(path, "svn:externals")
-        strings = externals.split(sep="\n")
-        folders = dict()
-        f_name = str()
-        for i in range(0, len(strings)):
-            string = strings[i]
-            if self.is_folder_hdr(string):
-                f_name = string
-                folders[f_name] = []
-            elif self.is_prop_name(string):
-                pass
-            elif self.is_prop_val(string):
-                folders[f_name].append(self.prop_item.split(string))
-            else:
-                pass
-
-        self.results[path] = folders
-        return
-
-    def __str__(self):
-        result = str()
-        parents = self.results.keys()
-        for parent in parents:
-            result += parent + "\n"
-            folders = self.results[parent].keys()
-            for folder in folders:
-                result += "\t" + folder + "\n"
-                for value in self.results[parent][folder]:
-                    if value is None:
-                        result += "\t\t ERROR \n"
-                    else:
-                        result += "\t\t" + value[0] + " | " + value[1] + " | " + value[2] + "\n"
-        return result
 
 
 def main():
-    adapter = Svn2GitAdapter()
+    adapter = svn2git.Adapter()
 
     if not svn.check():
         print("Subversion client does not installed.\nOr not added to \"path\" environment variable.")
-        exit()
+        return False
     else:
         print("[ OK ] Subversion")
 
     if not git.check():
         print("Git client does not installed.\nOr not added to \"path\" environment variable.")
-        exit()
+        return False
     else:
         print("[ OK ] Git")
 
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 3:
         print("[FAIL] Not enough parameters.")
-        exit()
+        return False
 
-    if adapter.is_path(sys.argv[1]):
-        print("[ OK ] Argument")
+    if adapter.is_url(sys.argv[1]):
+        print("[ OK ] Argument - Source URL.")
     else:
-        print("[FAIL] Argument: not in a windows path format")
+        print("[FAIL] Argument 1: not an URL")
 
-    print(">>> Directory to process: {0}".format(sys.argv[1]))
+    if adapter.is_path(sys.argv[2]):
+        print("[ OK ] Argument - destination path.")
+    else:
+        print("[FAIL] Argument 2: is not a path")
 
-    if not svn.controlled(sys.argv[1]):
-        print("[FAIL] This folder is not an SVN working copy.")
-        exit()
+    print(">>> URL to process: {0}".format(sys.argv[1]))
 
-    print("[ OK ] This is a valid working copy.")
+    if not adapter.attach(sys.argv[1]):
+        print("[FAIL] Cannot attach the resource.")
+        return False
+
+    print("[ OK ] This is a valid svn URL.")
     print(">>> Starting with contents...")
 
-    adapter.process_directory(sys.argv[1])
+    if not adapter.process_directory():
+        print("[FAIL] Failed to read SVN svn:externals properties.")
+        return False
 
-    print(adapter)
+    if not adapter.clone_externals():
+        print("[FAIL] Failed to git clone SVN externals.")
+        return False
 
-    print(">>> Done.")
-    return
+    if not adapter.clone_working_copy():
+        print("[FAIL] Failed to git clone working copy.")
+        return False
+
+    if not adapter.create_symlinks():
+        print("[FAIL] Failed to create symbolic links.")
+        return False
+
+    return True
 
 
 if __name__ == "__main__":
-    main()
+    if not main():
+        print(">>> FAILED <<<")
+        exit()
+    print(">>> SUCCEEDED <<<")
     exit()
