@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
-import sys
 import subversion_tools as svn
 import git_tools as git
-import svn2git_adapter as svn2git
+import settings_reader
 # use regexp https://docs.python.org/3/howto/regex.html
 
 
-def main():
-    adapter = svn2git.Adapter()
-
+def check_binaries():
     if not svn.check():
         print("Subversion client does not installed.\nOr not added to \"path\" environment variable.")
         return False
@@ -21,25 +18,21 @@ def main():
     else:
         print("[ OK ] Git")
 
-    if len(sys.argv) < 3:
-        print("[FAIL] Not enough parameters.")
+    return True
+
+def main():
+    settings = settings_reader.Reader()
+
+    if not check_binaries():
         return False
 
-    if adapter.is_url(sys.argv[1]):
-        print("[ OK ] Argument - Source URL.")
-    else:
-        print("[FAIL] Argument 1: not an URL")
-
-    if adapter.is_path(sys.argv[2]):
-        print("[ OK ] Argument - destination path.")
-    else:
-        print("[FAIL] Argument 2: is not a path")
-
-    print(">>> URL to process: {0}".format(sys.argv[1]))
-
-    if not adapter.attach(sys.argv[1]):
-        print("[FAIL] Cannot attach the resource.")
+    if not settings.read():
         return False
+
+    if not settings.check():
+        return False
+
+    adapter = settings.adapter      # adapter is ready to perform the job
 
     print("[ OK ] This is a valid svn URL.")
     print(">>> Starting with contents...")

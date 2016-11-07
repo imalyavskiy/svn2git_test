@@ -5,7 +5,7 @@ import git_tools as git
 import re
 
 
-class PropItem:
+class PropItem:         # Stores regexps for the svn:externals certain item to be parsed
     def __init__(self):
         self.url_repository_root = str()
         self.old_rev = re.compile(
@@ -73,7 +73,8 @@ class PropItem:
         return src_url, rev_val, dst_path
 
 
-class Adapter:
+class Adapter:                          # Parses entire output of the "svn propget -v -R <url|path>"
+                                        # and stores result for further usage
     def __init__(self):
         self.re_fs_path = \
             re.compile(
@@ -185,7 +186,7 @@ class Adapter:
                         result += "\t\t" + value[0] + " | " + value[1] + " | " + value[2] + "\n"
         return result
 
-    def clone_externals(self):
+    def clone_externals(self):      # Creates local git repositories to be plugged to main git repository as modules
         parents = self.results.keys()
         for parent in parents:
             pass
@@ -200,8 +201,9 @@ class Adapter:
 
         return False
 
-    def clone_working_copy(self):
+    def clone_working_copy(self):   # Executes git svn clone for the main repo
         return False
 
-    def create_symlinks(self):
-        return False
+    def create_symlinks(self):      # Creates a set of symbolic links in the same way as svn:externals should create
+        return False                # its folders
+
