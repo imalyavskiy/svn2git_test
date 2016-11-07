@@ -20,6 +20,7 @@ def check_binaries():
 
     return True
 
+
 def main():
     settings = settings_reader.Reader()
 
