@@ -2,7 +2,9 @@
 import subversion_tools as svn
 import git_tools as git
 import settings_reader
-# use regexp https://docs.python.org/3/howto/regex.html
+
+# use this https://docs.python.org/3/howto/regex.html for regexp
+# use this https://pypi.python.org/pypi/crcmod#downloads for CRC generation
 
 
 def check_binaries():
