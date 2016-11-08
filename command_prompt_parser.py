@@ -11,6 +11,13 @@ class Parser:
         self.repository_rev = ""
         self.working_copy_path = ""
         self.config_path = ""
+        self.cfg_create = False
+
+        self.key_url = "--url"
+        self.key_rev = "--revision"
+        self.key_path = "--path"
+        self.key_cfg = "--config"
+        self.key_cfg_crt = "--cfgcreate"
 
         self.re_url = \
             re.compile(
@@ -42,6 +49,9 @@ class Parser:
                 cArg += self.read_path(sys.argv[cArg + 1])
             elif current == "--config":
                 cArg += self.read_config(sys.argv[cArg + 1])
+            elif current == "--cfgcreate":
+                self.cfg_create = True
+
             cArg += 1
 
         return True
@@ -55,6 +65,8 @@ class Parser:
     def read_revision(self, string):
         if self.is_number(string):
             self.repository_rev = string
+            return True
+        if string == "HEAD":
             return True
         return False
 
@@ -72,19 +84,19 @@ class Parser:
 
     def is_url(self, string):
         m = self.re_url.match(string)
-        if m.group() == string:
+        if m is not None and m.group() == string:
             return True
         return False
 
     def is_number(self, string):
         m = self.re_number.match(string)
-        if m.group() == string:
+        if m is not None and m.group() == string:
             return True
         return False
 
     def is_path(self, string):
         m = self.re_path.match(string)
-        if m.group() == string:
+        if m is not None and m.group() == string:
             return True
         return False
 
@@ -93,4 +105,5 @@ class Parser:
         result += "REVISION : \"" + self.repository_rev + "\"\n"
         result += "PATH : \"" + self.working_copy_path + "\"\n"
         result += "CONFIG : \"" + self.config_path + "\"\n"
+        result += "CFGCREATE : \"" + self.cfg_create + "\"\n"
         return result
