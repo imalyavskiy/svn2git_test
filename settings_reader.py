@@ -73,3 +73,6 @@ class Reader(command_prompt_parser.Parser):
     def __str__(self):
         return ""
 
+if __name__ == "__main__":
+    print("[FAIL] This script cannot be run directly.")
+

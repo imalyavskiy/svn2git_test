@@ -2,32 +2,19 @@
 
 import subversion_tools as svn
 import git_tools as git
-import re
 import uuid
+import re_helpers
 
 
 class PropItem:         # Stores regexps for the svn:externals certain item to be parsed
     def __init__(self):
         self.url_repository_root = str()
-        self.old_rev = re.compile(
-            "-r\s?\d+"
-        )
-        self.rev_num = re.compile(
-            "\d+"
-        )
-        self.src_url = re.compile(
-            "((http(s)?://)|(\^/))"  # "https://" or "^/"
-            "(/?((\w|%|-|\.)+\.?)+)+"  # server.com/folder.f/folder
-        )
-        self.new_rev = re.compile(
-            "@\d+"  # @122
-        )
-        self.dst_path = re.compile(
-            "(/?((\w|-)+\.?)+)+"  # folder/folder
-        )
-        self.leading_space = re.compile(
-            "^\s"
-        )
+        self.old_rev = re_helpers.revision_old
+        self.rev_num = re_helpers.number_decimal
+        self.src_url = re_helpers.url_subversion
+        self.new_rev = re_helpers.revision_new
+        self.dst_path = re_helpers.path_relative
+        self.leading_space = re_helpers.leading_space
 
     def split(self, string):
         rev_val = "HEAD"
@@ -77,36 +64,13 @@ class PropItem:         # Stores regexps for the svn:externals certain item to b
 class Adapter:                          # Parses entire output of the "svn propget -v -R <url|path>"
                                         # and stores result for further usage
     def __init__(self):
-        self.re_fs_path = \
-            re.compile(
-                "([A-Za-z]:)?(((\\\\)|(/))[\w.]*)*((\\\\)|(/))?"  # "[d:]<\|/><dir name><\|/><dir name>[\|/]"
-            )
-        self.re_svn_ext_prop = \
-            re.compile(
-                "(^\s*)?"
-                "(-r\s\d+\s)?"  # -r 122
-                "((http(s)?://)|(\^/))"  # "https://" or "^/"
-                "(/?((\w|%|-)+\.?)+)+"  # server.com/folder.f/folder
-                "(@\d+)?"  # @122
-                "\s"  # space
-                "(/?((\w|-)+\.?)+)+"  # folder/folder
-            )
-        self.re_svn_folder_hdr = \
-            re.compile(
-                "Properties on \'"
-                "((http(s)?://)|(\^/))"  # "https://" or "^/"
-                "(/?((\w|%|-)+\.?)+)+"  # server.com/folder.f/folder
-                "\':"
-            )
-        self.re_svn_property_name = \
-            re.compile(
-                "^\s*svn:\w*"
-            )
-        self.re_url = \
-            re.compile(
-                "((http(s)?://)|(\^/))"  # "https://" or "^/"
-                "(/?((\w|%|-)+\.?)+)+"  # server.com/folder.f/folder
-            )
+
+        self.re_fs_path = re_helpers.path_absolute
+        self.re_svn_ext_prop = re_helpers.subversion_external_property_item
+        self.re_svn_folder_hdr = re_helpers.subversion_folder_property_report_header
+        self.re_svn_property_name = re_helpers.subversion_property_name
+        self.re_url = re_helpers.url_subversion
+
         self.results = dict()
         self.prop_item = PropItem()
         self.url_repository_root = str()
@@ -209,3 +173,6 @@ class Adapter:                          # Parses entire output of the "svn propg
     def create_symlinks(self):      # Creates a set of symbolic links in the same way as svn:externals should create
         return False                # its folders
 
+
+if __name__ == "__main__":
+    print("[FAIL] This script cannot be run directly.")

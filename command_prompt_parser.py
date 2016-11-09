@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
-import re
+import re_helpers
 
 # the Parser class is intended to read command line and provide settings read from keys
 
@@ -19,21 +19,9 @@ class Parser:
         self.key_cfg = "--config"
         self.key_cfg_crt = "--cfgcreate"
 
-        self.re_url = \
-            re.compile(
-                "((http(s)?://)|(\^/))"  # "https://" or "^/"
-                "(/?((\w|%|-)+\.?)+)+"  # server.com/folder.f/folder
-            )
-
-        self.re_path = \
-            re.compile(
-                "([A-Za-z]:)?(((\\\\)|(/))[\w.]*)*((\\\\)|(/))?"  # "[d:]<\|/><dir name><\|/><dir name>[\|/]"
-            )
-
-        self.re_number = \
-            re.compile(
-                "\d+"
-            )
+        self.re_url = re_helpers.url_subversion
+        self.re_path = re_helpers.path_absolute
+        self.re_number = re_helpers.number_decimal
 
         pass
 
@@ -107,3 +95,8 @@ class Parser:
         result += "CONFIG : \"" + self.config_path + "\"\n"
         result += "CFGCREATE : \"" + self.cfg_create + "\"\n"
         return result
+
+
+if __name__ == "__main__":
+    print("[FAIL] This script cannot be run directly.")
+
