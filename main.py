@@ -44,6 +44,8 @@ def main():
         print("[FAIL] Failed to read SVN svn:externals properties.")
         return False
 
+    print(adapter)
+
     if not adapter.clone_externals():
         print("[FAIL] Failed to git clone SVN externals.")
         return False

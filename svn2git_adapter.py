@@ -3,6 +3,7 @@
 import subversion_tools as svn
 import git_tools as git
 import re
+import uuid
 
 
 class PropItem:         # Stores regexps for the svn:externals certain item to be parsed
@@ -59,7 +60,6 @@ class PropItem:         # Stores regexps for the svn:externals certain item to b
                 elif rev_val != m.group():
                     print("[WARN] old style and new style revisions are !EQ - taking the new style one.")
                     rev_val = new_rev[m.span()[0]: m.span()[1]]
-                    #                    return None
 
         m = self.dst_path.search(string)
         if m is None:
@@ -70,7 +70,8 @@ class PropItem:         # Stores regexps for the svn:externals certain item to b
         if src_url.startswith("^"):
             src_url = src_url.replace("^", self.url_repository_root)
 
-        return src_url, rev_val, dst_path
+        git_local_repo_name = "{" + str(uuid.uuid4()).upper() + "}"
+        return src_url, rev_val, dst_path, git_local_repo_name
 
 
 class Adapter:                          # Parses entire output of the "svn propget -v -R <url|path>"
@@ -183,7 +184,8 @@ class Adapter:                          # Parses entire output of the "svn propg
                     if value is None:
                         result += "\t\t ERROR \n"
                     else:
-                        result += "\t\t" + value[0] + " | " + value[1] + " | " + value[2] + "\n"
+                        result += "\t\t" + value[0] + "@" + value[1] + "\n"
+                        result += "\t\t" + value[3] + " for " + value[2] + "\n"
         return result
 
     def clone_externals(self):      # Creates local git repositories to be plugged to main git repository as modules

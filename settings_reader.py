@@ -65,7 +65,7 @@ class Reader(command_prompt_parser.Parser):
         return True
 
     def check(self):
-        if not self.adapter.attach(super().repository_url):
+        if not self.adapter.attach(self.repository_url):
             print("[FAIL] Cannot attach the resource.")
             return False
         return True
