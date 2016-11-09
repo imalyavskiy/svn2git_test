@@ -4,7 +4,6 @@ import git_tools as git
 import settings_reader
 
 # use this https://docs.python.org/3/howto/regex.html for regexp
-# use this https://pypi.python.org/pypi/crcmod#downloads for CRC generation
 
 
 def check_binaries():
@@ -44,7 +43,7 @@ def main():
         print("[FAIL] Failed to read SVN svn:externals properties.")
         return False
 
-    print(adapter)
+#    print(adapter)
 
     if not adapter.clone_externals():
         print("[FAIL] Failed to git clone SVN externals.")
