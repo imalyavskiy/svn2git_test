@@ -68,6 +68,11 @@ class Reader(command_prompt_parser.Parser):
         if not self.adapter.attach(self.repository_url):
             print("[FAIL] Cannot attach the resource.")
             return False
+
+        self.adapter.path_working_cpy_root = self.working_copy_path
+        self.adapter.working_cpy_externals += "externals"
+        self.adapter.working_cpy_placement += "working_cpy"
+
         return True
 
     def __str__(self):

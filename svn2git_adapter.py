@@ -4,6 +4,7 @@ import subversion_tools as svn
 import git_tools as git
 import uuid
 import re_helpers
+import os
 
 
 class PropItem:         # Stores regexps for the svn:externals certain item to be parsed
@@ -75,6 +76,8 @@ class Adapter:                          # Parses entire output of the "svn propg
         self.prop_item = PropItem()
         self.url_repository_root = str()
         self.path_working_cpy_root = str()
+        self.working_cpy_placement = str()
+        self.working_cpy_externals = str()
         self.url_repository_rel = str()
 
     def is_url(self, path):
@@ -153,6 +156,20 @@ class Adapter:                          # Parses entire output of the "svn propg
         return result
 
     def clone_externals(self):      # Creates local git repositories to be plugged to main git repository as modules
+        if not os.path.exists(self.path_working_cpy_root):
+            os.mkdir(self.path_working_cpy_root)
+        elif os.path.isdir(self.path_working_cpy_root) and 0 != len(os.listdir(self.path_working_cpy_root)):
+            print("[FAIL] Target directory is not empty")
+            return False
+
+        folders = self.working_cpy_placement,
+        self.create_root_subfolder(folders)
+
+        folders = self.working_cpy_externals,
+        externals_path = self.create_root_subfolder(folders)
+
+        externals_list = open(externals_path + "\\" + "list.txt", "wt")
+
         parents = self.results.keys()
         for parent in parents:
             pass
@@ -163,7 +180,12 @@ class Adapter:                          # Parses entire output of the "svn propg
                     if value is None:
                         pass
                     else:
-                        pass
+                        folders = self.working_cpy_externals, value[3],
+                        self.create_root_subfolder(folders)
+                        externals_list.write(value[3] + " : -r" + value[1] + " " + value[0] + "\n")
+
+
+        externals_list.close()
 
         return False
 
@@ -173,6 +195,17 @@ class Adapter:                          # Parses entire output of the "svn propg
     def create_symlinks(self):      # Creates a set of symbolic links in the same way as svn:externals should create
         return False                # its folders
 
+    def create_root_subfolder(self, folders):
+        folder_separator  = str()
+        folder_path = self.path_working_cpy_root
+        if "nt" == os.name:
+            folder_separator = "\\"
+        for item in folders:
+            folder_path += folder_separator + item
+
+        os.mkdir(folder_path)
+
+        return folder_path
 
 if __name__ == "__main__":
     print("[FAIL] This script cannot be run directly.")
