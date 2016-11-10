@@ -162,26 +162,27 @@ class Adapter:                          # Parses entire output of the "svn propg
             print("[FAIL] Target directory is not empty")
             return False
 
-        folders = self.working_cpy_placement,
-        self.create_root_subfolder(folders)
+        arguments = self.working_cpy_placement,
+        self.create_root_subfolder(arguments)
 
-        folders = self.working_cpy_externals,
-        externals_path = self.create_root_subfolder(folders)
+        arguments = self.working_cpy_externals,
+        externals_path = self.create_root_subfolder(arguments)
 
         externals_list = open(externals_path + "\\" + "list.txt", "wt")
 
         parents = self.results.keys()
         for parent in parents:
             pass
-            folders = self.results[parent].keys()
-            for folder in folders:
+            arguments = self.results[parent].keys()
+            for folder in arguments:
                 pass
                 for value in self.results[parent][folder]:
                     if value is None:
                         pass
                     else:
-                        folders = self.working_cpy_externals, value[3],
-                        self.create_root_subfolder(folders)
+                        arguments = self.working_cpy_externals, value[3],
+                        folder = self.create_root_subfolder(arguments)
+                        git.svn.clone(value[0], value[1], folder)
                         externals_list.write(value[3] + " : -r" + value[1] + " " + value[0] + "\n")
 
 
