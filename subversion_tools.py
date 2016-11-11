@@ -8,8 +8,11 @@ class Client:
 
     def run(self, args):
         pipe = subprocess.PIPE
-        output = subprocess.Popen("svn " + args, shell=True, stdin=pipe, stdout=pipe,
+        cmd_str = "svn " + args
+        print("[INFO] Call \"{0}\"... ".format(cmd_str), end='')
+        output = subprocess.Popen(cmd_str, shell=True, stdin=pipe, stdout=pipe,
                                   stderr=subprocess.STDOUT).stdout.read()
+        print("Done.")
         if 0 == len(output):
             return ""
         return output.decode('cp1251', 'replace')

@@ -37,7 +37,7 @@ def main():
     adapter = settings.adapter      # adapter is ready to perform the job
 
     print("[ OK ] This is a valid svn URL.")
-    print(">>> Starting with contents...")
+    print("[INFO] Starting with contents...")
 
     if not adapter.process_directory():
         print("[FAIL] Failed to read SVN svn:externals properties.")
@@ -60,7 +60,7 @@ def main():
 
 if __name__ == "__main__":
     if not main():
-        print(">>> FAILED <<<")
+        print("[FAIL] FAILED")
         exit()
-    print(">>> SUCCEEDED <<<")
+    print("[ OK ] SUCCEEDED")
     exit()

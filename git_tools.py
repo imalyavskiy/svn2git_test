@@ -8,7 +8,10 @@ class Client:
 
     def run(self, args):
         pipe = subprocess.PIPE
-        output = subprocess.Popen("git "+args, shell=True, stdin=pipe, stdout=pipe, stderr=subprocess.STDOUT).stdout.read()
+        cmd_str = "git "+args
+        print("[INFO] Call \"{0}\"... ".format(cmd_str), end='')
+        output = subprocess.Popen(cmd_str, shell=True, stdin=pipe, stdout=pipe, stderr=subprocess.STDOUT).stdout.read()
+        print("Done.")
         if 0 == len(output):
             return ""
         return output.decode('utf8', 'ignore')
@@ -20,14 +23,17 @@ class ClientSVN:
 
     def run(self, args):
         pipe = subprocess.PIPE
-        output = subprocess.Popen("git svn "+args, shell=True, stdin=pipe, stdout=pipe, stderr=subprocess.STDOUT).stdout.read()
+        cmd_str = "git svn "+args
+        print("[INFO] Call \"{0}\"... ".format(cmd_str), end='')
+        output = subprocess.Popen(cmd_str, shell=True, stdin=pipe, stdout=pipe, stderr=subprocess.STDOUT).stdout.read()
+        print("Done.")
         if 0 == len(output):
             return ""
         return output.decode('utf8', 'ignore')
 
     def clone(self, url, revision, location):
-        # implement here
-        pass
+        result = svn.run("clone " + url + " -r " + revision + " " + location)
+        return result
 
 if __name__ == "__main__":
     print("[FAIL] This script cannot be run directly.")

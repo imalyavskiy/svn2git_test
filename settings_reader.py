@@ -60,7 +60,7 @@ class Reader(command_prompt_parser.Parser):
         else:
             print("[FAIL] Argument 2: is not a path")
 
-        print(">>> URL to process: {0}".format(self.repository_url))
+        print("[INFO] URL to process: {0}".format(self.repository_url))
 
         return True
 
