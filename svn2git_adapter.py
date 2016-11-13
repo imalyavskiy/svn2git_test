@@ -156,10 +156,15 @@ class Adapter:                          # Parses entire output of the "svn propg
         return result
 
     def clone_externals(self):      # Creates local git repositories to be plugged to main git repository as modules
-        externals_path = self.path_working_cpy_root + "\\" + self.working_cpy_externals
+        externals_path = self.path_working_cpy_root + "/" + self.working_cpy_externals
         if not os.path.exists(externals_path):
             if not os.path.exists(self.path_working_cpy_root):
-                os.mkdir(self.path_working_cpy_root)
+                try:
+                    os.mkdir(self.path_working_cpy_root)
+                except FileNotFoundError as err:
+                    print("[FAIL] Cannot create the \"{0}\" directory.".format(self.path_working_cpy_root))
+                    print("{0}".format(err))
+
                 if os.path.exists(self.path_working_cpy_root):
                     print("[ OK ] Created a \"{0}\" directory".format(self.path_working_cpy_root))
             folder_sequence = (self.working_cpy_externals,)
@@ -168,7 +173,7 @@ class Adapter:                          # Parses entire output of the "svn propg
             print("[FAIL] The \"{0}\" directory already exists.".format(externals_path))
             return False
 
-        externals_list = open(externals_path + "\\" + "list.txt", "wt")
+        externals_list = open(externals_path + "/" + "list.txt", "wt")
 
         parents = self.results.keys()
         for parent in parents:
@@ -183,7 +188,7 @@ class Adapter:                          # Parses entire output of the "svn propg
                         arguments = self.working_cpy_externals, value[3],
                         folder = self.create_root_subfolder(arguments)
                         result = git.svn.clone(value[0], value[1], folder)
-                        log = open(folder + "\\.." + "\\" + value[3] + ".log", "wt")
+                        log = open(folder + "/.." + "/" + value[3] + ".log", "wt")
                         log.write(result)
                         log.close()
                         externals_list.write(value[3] + " : -r" + value[1] + " " + value[0] + "\n")
@@ -192,7 +197,7 @@ class Adapter:                          # Parses entire output of the "svn propg
         return True
 
     def clone_working_copy(self):   # Executes git svn clone for the main repo
-        working_copy_path = self.path_working_cpy_root + "\\" + self.working_cpy_placement
+        working_copy_path = self.path_working_cpy_root + "/" + self.working_cpy_placement
         if not os.path.exists(working_copy_path):
             if not os.path.exists(self.path_working_cpy_root):
                 os.mkdir(self.path_working_cpy_root)
@@ -205,7 +210,7 @@ class Adapter:                          # Parses entire output of the "svn propg
             return False
 
         result = git.svn.clone(self.url_repository_root + "/" + self.url_repository_rel, "HEAD", working_copy_path)
-        log = open(working_copy_path + "\\.." + "\\clone.log", "wt")
+        log = open(working_copy_path + "/.." + "/clone.log", "wt")
         log.write(result)
         log.close()
 
@@ -219,6 +224,8 @@ class Adapter:                          # Parses entire output of the "svn propg
         folder_path = self.path_working_cpy_root
         if "nt" == os.name:
             folder_separator = "\\"
+        if "posix" == os.name:
+            folder_separator = "/"
         for item in folders:
             folder_path += folder_separator + item
 

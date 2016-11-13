@@ -1,0 +1,6 @@
+TODO:
+    * Create an entity which will form correct paths depending on the operating system we are running
+      See svn_2git_adapter.py:create_root_subfolder
+    * In case if path to save the working copy starts with ~\ on linux - we are crashing
+    * On Linux in order to run "git svn..." it is required to install additional package - "git-svn"
+      Investigate how to deal with its absence

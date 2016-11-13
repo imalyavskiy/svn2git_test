@@ -19,7 +19,7 @@ url_common = re.compile(
 
 url_subversion = re.compile(
     "((http(s)?://)|(\^/))"     # "https://" or http:// or "^/"
-    "(/?((\w|%|-|\.)+\.?)+)+"   # server[.folder[.folder[...]]]/[...]
+    "(/?((\w|%|#|-|\.)+\.?)+)+"   # server[.folder[.folder[...]]]/[...]
 )
 
 revision_new = re.compile(
@@ -27,7 +27,7 @@ revision_new = re.compile(
 )
 
 path_relative = re.compile(
-    "(/?((\w|-)+\.?)+)+"        # folder/folder
+    "(/?((\w|#|-)+\.?)+)+"        # folder/folder
 )
 
 leading_space = re.compile(
@@ -36,17 +36,17 @@ leading_space = re.compile(
 
 path_absolute = \
     re.compile(
-        "([A-Za-z]:)?(((\\\\)|(/))[\w.]*)*((\\\\)|(/))?"  # "[d:]<\|/><dir name><\|/><dir name>[\|/]"
+        "(([A-Za-z]:)|(~))?(((\\\\)|(/))[\w.]*)*((\\\\)|(/))?"  # "[d:]<\|/><dir name><\|/><dir name>[\|/]"
     )
 
 subversion_external_property_item = re.compile(
         "(^\s*)?"
         "(-r\s\d+\s)?"  # -r 122
         "((http(s)?://)|(\^/))"  # "https://" or "^/"
-        "(/?((\w|%|-)+\.?)+)+"  # server.com/folder.f/folder
+        "(/?((\w|%|#|-)+\.?)+)+"  # server.com/folder.f/folder
         "(@\d+)?"  # @122
         "\s"  # space
-        "(/?((\w|-)+\.?)+)+"  # folder/folder
+        "(/?((\w|#|-)+\.?)+)+"  # folder/folder
     )
 
 subversion_folder_property_report_header = re.compile(
