@@ -4,3 +4,5 @@ TODO:
     * In case if path to save the working copy starts with ~\ on linux - we are crashing
     * On Linux in order to run "git svn..." it is required to install additional package - "git-svn"
       Investigate how to deal with its absence
+	* Create config funcionality: if "create config" option is set - create config with paramenters present
+	  in the comand line. If parameters are absent then existent parameters values must be blank("")
