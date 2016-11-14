@@ -38,12 +38,20 @@ class ClientSVN:
 if __name__ == "__main__":
     print("[FAIL] This script cannot be run directly.")
 
-git = Client()
+__git__ = Client()
 svn = ClientSVN()
 
 
 def check():
-    output = git.run("--version")
+    output = __git__.run("--version")
     if output.startswith("git version"):
         return True
     return False
+
+
+def clone(src, dst):
+    return __git__.run("clone " + src + " " + dst)
+
+
+def submodule():  # TODO: implement
+    return str()  # __git__.run("submodule " + "")
