@@ -85,6 +85,7 @@ class Adapter:                          # Parses entire output of the "svn propg
         self.working_cpy_placement = str()
         self.working_cpy_externals = str()
         self.url_repository_rel = str()
+        self.project_url = str()
 
     def is_url(self, path):
         m = self.re_url.match(path)
@@ -214,7 +215,7 @@ class Adapter:                          # Parses entire output of the "svn propg
             print("[FAIL] The \"{0}\" directory already exists.".format(working_copy_path))
             return False
 
-        result = git.svn.clone(self.url_repository_root + "/" + self.url_repository_rel, "HEAD", working_copy_path)
+        result = git.svn.clone(self.project_url, "HEAD", working_copy_path)
         log = open(working_copy_path + "/.." + "/clone.log", "wt")
         log.write(result)
         log.close()
@@ -243,16 +244,17 @@ class Adapter:                          # Parses entire output of the "svn propg
                 pass
                 for value in self.results[parent][folder]:
                     if value is not None:
-                        result = git.submodule.add(# quiet=False,
-                                                   # branch="master",
-                                                   # force=False,
-                                                   # name=str(),
-                                                   # reference="",
-                                                   # depth="",
-                                                   repository=value["LOCAL_REPO_PATH"],
-                                                   path=value["DST_PATH"]
-                                                   )
-                        pass
+                        result = git.submodule.add(
+                           # quiet=False,
+                           # branch="master",
+                           # force=False,
+                           # name=str(),
+                           # reference="",
+                           # depth="",
+                           repository=value["LOCAL_REPO_PATH"],
+                           path=value["DST_PATH"],
+                           cwd=self.path_working_cpy_root + "/" + self.working_cpy_placement
+                        )
         return True
 
     def create_root_subfolder(self, folders):
