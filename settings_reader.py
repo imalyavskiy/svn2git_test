@@ -69,6 +69,7 @@ class Reader(command_prompt_parser.Parser):
             print("[FAIL] Cannot attach the resource.")
             return False
 
+        self.adapter.project_url = self.repository_url
         self.adapter.path_working_cpy_root = self.working_copy_path
         self.adapter.working_cpy_externals += "externals"
         self.adapter.working_cpy_placement += "working_cpy"
