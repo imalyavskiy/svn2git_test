@@ -1,16 +1,28 @@
 # -*- coding: utf-8 -*-
 import subprocess
+import os
 
 
 class Client:
     def __init__(self):
         pass
 
-    def run(self, args):
+    def run(self, args, **kwargs):
         pipe = subprocess.PIPE
         cmd_str = "git "+args
+
+        cwd_str = os.getcwd()
+        cwd = kwargs.get("cwd")
+        if cwd is not None:
+            cwd_str = cwd
+
         print("[INFO] Call \"{0}\"... ".format(cmd_str), end='')
-        output = subprocess.Popen(cmd_str, shell=True, stdin=pipe, stdout=pipe, stderr=subprocess.STDOUT).stdout.read()
+        output = subprocess.Popen(cmd_str,
+                                  shell=True,
+                                  stdin=pipe,
+                                  stdout=pipe,
+                                  stderr=subprocess.STDOUT,
+                                  cwd=cwd_str).stdout.read()
         print("Done.")
         if 0 == len(output):
             return ""
@@ -22,7 +34,9 @@ class Submodule:
         pass
 
     def add(self, **kwargs):
+        result = ""
         string = ""
+        cwd_str = ""
 
         quiet = kwargs.get("quiet")
         if quiet is not None:
@@ -58,7 +72,12 @@ class Submodule:
         if path is not None:
             string += " " + path
 
-        return self.client.run(string)
+        cwd = kwargs.get("cwd")
+        if cwd is not None:
+            cwd_str = cwd
+
+        result = self.client.run(string, cwd=cwd_str)
+        return result
 
     def status(self):
         return str()
@@ -115,5 +134,19 @@ def check():
     return False
 
 
-def clone(src, dst):
-    return __git__.run("clone " + src + " " + dst)
+def clone(**kwargs):
+    string = "clone"
+
+    repository = kwargs.get("repository")
+    if repository is not None:
+        string += " " + repository
+    else:
+        return None
+
+    path = kwargs.get("path")
+    if path is not None:
+        string += " " + path
+    else:
+        return None
+
+    return __git__.run(string)
