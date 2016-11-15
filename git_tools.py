@@ -16,6 +16,71 @@ class Client:
             return ""
         return output.decode('utf8', 'ignore')
 
+class Submodule:
+    def __init__(self, _client):
+        self.client = _client
+        pass
+
+    def add(self, **kwargs):
+        string = ""
+
+        quiet = kwargs.get("quiet")
+        if quiet is not None:
+            string += "--quiet "
+
+        string += "add"
+
+        branch = kwargs.get("branch")
+        if branch is not None:
+            pass
+
+        force = kwargs.get("force")
+        if force is not None:
+            pass
+
+        name = kwargs.get("name")
+        if name is not None:
+            pass
+
+        reference = kwargs.get("reference")
+        if reference is not None:
+            pass
+
+        depth = kwargs.get("depth")
+        if depth is not None:
+            pass
+
+        repository = kwargs.get("repository")
+        if repository is not None:
+            string += " " + repository
+
+        path = kwargs.get("path")
+        if path is not None:
+            string += " " + path
+
+        return self.client.run(string)
+
+    def status(self):
+        return str()
+
+    def init(self):
+        return str()
+
+    def deinit(self):
+        return str()
+
+    def update(self):
+        return str()
+
+    def summary(self):
+        return str()
+
+    def foreach(self):
+        return str()
+
+    def sync(self):
+        return str()
+
 
 class ClientSVN:
     def __init__(self):
@@ -39,6 +104,7 @@ if __name__ == "__main__":
     print("[FAIL] This script cannot be run directly.")
 
 __git__ = Client()
+submodule = Submodule(__git__)
 svn = ClientSVN()
 
 
@@ -51,7 +117,3 @@ def check():
 
 def clone(src, dst):
     return __git__.run("clone " + src + " " + dst)
-
-
-def submodule():  # TODO: implement
-    return str()  # __git__.run("submodule " + "")

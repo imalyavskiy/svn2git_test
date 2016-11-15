@@ -243,8 +243,15 @@ class Adapter:                          # Parses entire output of the "svn propg
                 pass
                 for value in self.results[parent][folder]:
                     if value is not None:
-                        # TODO: should be "git submodule..." instead of "git clone..."
-                        result = git.clone(value["LOCAL_REPO_PATH"], value["DST_PATH"])
+                        result = git.submodule.add(# quiet=False,
+                                                   # branch="master",
+                                                   # force=False,
+                                                   # name=str(),
+                                                   # reference="",
+                                                   # depth="",
+                                                   repository=value["LOCAL_REPO_PATH"],
+                                                   path=value["DST_PATH"]
+                                                   )
                         pass
         return True
 
