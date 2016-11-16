@@ -9,3 +9,4 @@ TODO:
 	   in the command line. If parameters are absent then existent parameters values must be blank("")
 	* Parse "git svn clone..." log and report errors and/or warnings in addition to saving the log to a file
 	* Parse "git submodule..." log and report errors and/or warnings
+	* Authorization handling

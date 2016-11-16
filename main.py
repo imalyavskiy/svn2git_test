@@ -51,7 +51,7 @@ def main():
         print("[FAIL] Failed to git clone working copy.")
         return False
 
-    if not adapter.create_symlinks():
+    if not adapter.create_submodules():
         print("[FAIL] Failed to create symbolic links.")
         return False
 

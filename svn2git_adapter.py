@@ -228,14 +228,18 @@ class Adapter:                          # Parses entire output of the "svn propg
                 pass
                 for value in self.results[parent][folder]:
                     if value is not None:
-                        value["DST_PATH"] = working_copy_path + folder.replace(parent, "") + "/" + value["DST_PATH"];
+                        # destination path should be relative to the folder where we are calling for
+                        # "git submodule add ..."
+                        value["DST_PATH"] = folder.replace(parent, "") + "/" + value["DST_PATH"];
+                        if value["DST_PATH"].startswith("/"):
+                            value["DST_PATH"] = "." + value["DST_PATH"]
                         pass
 
         return True
 
     # Creates a set of symbolic links in the same way as svn:externals should create
     # its folders
-    def create_symlinks(self):
+    def create_submodules(self):
         parents = self.results.keys()
         for parent in parents:
             pass
@@ -245,17 +249,17 @@ class Adapter:                          # Parses entire output of the "svn propg
                 for value in self.results[parent][folder]:
                     if value is not None:
                         result = git.submodule.add(
-                           # quiet=False,
-                           # branch="master",
-                           # force=False,
-                           # name=str(),
-                           # reference="",
-                           # depth="",
-                           repository=value["LOCAL_REPO_PATH"],
-                           path=value["DST_PATH"],
-                           cwd=self.path_working_cpy_root + "/" + self.working_cpy_placement
+                            # quiet=False,
+                            # branch="master",
+                            # force=False,
+                            # name=str(),
+                            # reference="",
+                            # depth="",
+                            repository=value["LOCAL_REPO_PATH"],
+                            path=value["DST_PATH"],
+                            cwd=self.path_working_cpy_root + "/" + self.working_cpy_placement
                         )
-        return True
+            return True
 
     def create_root_subfolder(self, folders):
         folder_separator  = str()
