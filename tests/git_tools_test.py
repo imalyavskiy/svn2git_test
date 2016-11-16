@@ -24,10 +24,18 @@ def read_cmd():
 
 def main():
     arguments = read_cmd()
-    main_repo = arguments.get("main")
-    if main_repo is not None:
-        git.status(arguments["main"])
-        pass
+
+    repo_main = arguments.get("main")
+    repo_sub = arguments.get("sub")
+
+    if repo_main is None or repo_sub is None:
+        print("[FAIL] Invalid arguments")
+        print("       Usage --main <main repo path> --sub <sub repo path>")
+        exit()
+
+    print("[INFO] {0}".format(git.status(repo_main)))
+    print("[INFO] {0}".format(git.status(repo_sub)))
+    print("[INFO] {0}".format(git.submodule.add(repository=repo_sub, path="externals/sub", cwd=repo_main)))
 
     return
 
