@@ -35,7 +35,7 @@ class Submodule:
 
     def add(self, **kwargs):
         result = ""
-        string = ""
+        string = "submodule "
         cwd_str = ""
 
         quiet = kwargs.get("quiet")
@@ -150,3 +150,8 @@ def clone(**kwargs):
         return None
 
     return __git__.run(string)
+
+
+def status(path):
+    return __git__.run("status " + path, cwd=path)
+
