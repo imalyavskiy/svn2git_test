@@ -16,7 +16,7 @@ class Client:
         if cwd is not None:
             cwd_str = cwd
 
-        print("[INFO] Call \"{0}\"... ".format(cmd_str), end='')
+        print("[INFO] Call \"{0}\"... ".format(cmd_str), end='', flush=True)
         output = subprocess.Popen(cmd_str,
                                   shell=True,
                                   stdin=pipe,
@@ -31,7 +31,6 @@ class Client:
 class Submodule:
     def __init__(self, _client):
         self.client = _client
-        pass
 
     def add(self, **kwargs):
         result = ""
@@ -108,7 +107,7 @@ class ClientSVN:
     def run(self, args):
         pipe = subprocess.PIPE
         cmd_str = "git svn "+args
-        print("[INFO] Call \"{0}\"... ".format(cmd_str), end='')
+        print("[INFO] Call \"{0}\"... ".format(cmd_str), end='', flush=True)
         output = subprocess.Popen(cmd_str, shell=True, stdin=pipe, stdout=pipe, stderr=subprocess.STDOUT).stdout.read()
         print("Done.")
         if 0 == len(output):
@@ -118,6 +117,12 @@ class ClientSVN:
     def clone(self, url, revision, location):
         result = svn.run("clone " + url + " -r " + revision + " " + location)
         return result
+
+    def check(self):
+        output = __git__.run("svn")
+        if output.startswith("git-svn - bidirectional operations between a single Subversion tree and git"):
+            return True
+        return False
 
 if __name__ == "__main__":
     print("[FAIL] This script cannot be run directly.")

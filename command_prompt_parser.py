@@ -23,8 +23,6 @@ class Parser:
         self.re_path = re_helpers.path_absolute
         self.re_number = re_helpers.number_decimal
 
-        pass
-
     def read(self):
         cArg = 1
         while cArg < len(sys.argv):

@@ -184,10 +184,8 @@ class Adapter:                          # Parses entire output of the "svn propg
 
         parents = self.results.keys()
         for parent in parents:
-            pass
             arguments = self.results[parent].keys()
             for folder in arguments:
-                pass
                 for value in self.results[parent][folder]:
                     if value is not None:
                         arguments = self.working_cpy_externals, value["LOCAL_REPO_NAME"],
@@ -222,10 +220,8 @@ class Adapter:                          # Parses entire output of the "svn propg
 
         parents = self.results.keys()
         for parent in parents:
-            pass
             arguments = self.results[parent].keys()
             for folder in arguments:
-                pass
                 for value in self.results[parent][folder]:
                     if value is not None:
                         # destination path should be relative to the folder where we are calling for
@@ -233,7 +229,6 @@ class Adapter:                          # Parses entire output of the "svn propg
                         value["DST_PATH"] = folder.replace(parent, "") + "/" + value["DST_PATH"];
                         if value["DST_PATH"].startswith("/"):
                             value["DST_PATH"] = "." + value["DST_PATH"]
-                        pass
 
         return True
 
@@ -242,10 +237,8 @@ class Adapter:                          # Parses entire output of the "svn propg
     def create_submodules(self):
         parents = self.results.keys()
         for parent in parents:
-            pass
             arguments = self.results[parent].keys()
             for folder in arguments:
-                pass
                 for value in self.results[parent][folder]:
                     if value is not None:
                         result = git.submodule.add(

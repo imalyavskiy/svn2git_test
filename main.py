@@ -2,22 +2,33 @@
 import subversion_tools as svn
 import git_tools as git
 import settings_reader
+import os
 
 # use this https://docs.python.org/3/howto/regex.html for regexp
 
 
 def check_binaries():
     if not svn.check():
-        print("Subversion client does not installed.\nOr not added to \"path\" environment variable.")
+        print("[FAIL] Subversion client does not installed.\nOr not added to \"path\" environment variable.")
         return False
     else:
         print("[ OK ] Subversion")
 
     if not git.check():
-        print("Git client does not installed.\nOr not added to \"path\" environment variable.")
+        print("[FAIL] Git client does not installed.\nOr not added to \"path\" environment variable.")
         return False
     else:
         print("[ OK ] Git")
+
+    # under Linux the git-svn is a separate package and requires separate install
+    if "posix" == os.name:
+        if not git.svn.check():
+            print("[FAIL] Git Svn client does not installed.")
+            print("       You have to run \"sudo apt-get install git-svn\" in terminal")
+            print("       to get it.")
+            return False
+        else:
+            print("[ OK ] Git-Svn")
 
     return True
 
@@ -60,7 +71,7 @@ def main():
 
 if __name__ == "__main__":
     if not main():
-        print("[FAIL] FAILED")
-        exit()
-    print("[ OK ] SUCCEEDED")
+        print("[FAIL] Finally - failed.")
+    else:
+        print("[ OK ] Finally - succeeded.")
     exit()

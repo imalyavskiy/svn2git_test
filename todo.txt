@@ -3,10 +3,14 @@ TODO:
        See svn_2git_adapter.py:create_root_subfolder
     * In case if path to save the working copy starts with ~\ on linux - we are crashing
        Replace ~ with \home\<username>
-    * On Linux in order to run "git svn..." it is required to install additional package - "git-svn"
-       Investigate how to deal with its absence
 	* Create config functionality: if "create config" option is set - create config with parameters present
 	   in the command line. If parameters are absent then existent parameters values must be blank("")
 	* Parse "git svn clone..." log and report errors and/or warnings in addition to saving the log to a file
 	* Parse "git submodule..." log and report errors and/or warnings
 	* Authorization handling
+	* Duplicate the console output of git and svn while they are working
+
+DONE:
+    * On Linux in order to run "git svn..." it is required to install additional package - "git-svn"
+        Investigate how to deal with its absence
+        == An addition check was added in case of "posix" OS
