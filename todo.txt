@@ -9,6 +9,7 @@ TODO:
 	* Parse "git submodule..." log and report errors and/or warnings
 	* Authorization handling
 	* Duplicate the console output of git and svn while they are working
+	* Add timings for externals calls
 
 DONE:
     * On Linux in order to run "git svn..." it is required to install additional package - "git-svn"
