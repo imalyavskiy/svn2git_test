@@ -24,9 +24,9 @@ class Reader(command_prompt_parser.Parser):
         if not (len(self.config_path) and os.path.isfile(self.config_path)):
             print("[WARN] The \"{0}\" config file does not exist".format(self.config_path))
         else:
-            config = open(self.config_path, "rt")
+            with open(self.config_path, "rt") as config:
+                lines = config.readlines()  # the config file is closed automatically at the end of the block
 
-            lines = config.readlines()
             for line in lines:
                 line = line.replace("\n", "")
                 if line.startswith(self.opt_url) and not len(self.repository_url):
@@ -47,8 +47,6 @@ class Reader(command_prompt_parser.Parser):
                     if self.is_path(line):
                         self.working_copy_path = line
                     continue
-
-            config.close()
 
         if self.adapter.is_url(self.repository_url):
             print("[ OK ] Argument - Source URL.")
