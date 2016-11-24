@@ -11,14 +11,16 @@ class Reader(command_prompt_parser.Parser):
     def __init__(self):
         super().__init__()
 
-        self.adapter = svn2git.Adapter()
+        self.adapter = object()
         self.opt_url = "URL : \""
         self.opt_rev = "REVISION : \""
         self.opt_path = "PATH : \""
 
-    def read(self):
-
+    def init(self, adapter):
+        self.adapter = adapter
+        # read settings
         if not super().read():
+            print("[FAIL] no arguments provided. Don't know what to do.")
             return False
 
         if not (len(self.config_path) and os.path.isfile(self.config_path)):
@@ -52,17 +54,17 @@ class Reader(command_prompt_parser.Parser):
             print("[ OK ] Argument - Source URL.")
         else:
             print("[FAIL] Argument 1: not an URL")
+            return False
 
         if self.adapter.is_path(self.working_copy_path):
             print("[ OK ] Argument - destination path.")
         else:
             print("[FAIL] Argument 2: is not a path")
+            return False
 
         print("[INFO] URL to process: {0}".format(self.repository_url))
 
-        return True
-
-    def check(self):
+        # check settings
         if not self.adapter.attach(self.repository_url):
             print("[FAIL] Cannot attach the resource.")
             return False
@@ -75,7 +77,7 @@ class Reader(command_prompt_parser.Parser):
         return True
 
     def __str__(self):
-        return ""
+        return super.__str__()
 
 if __name__ == "__main__":
     print("[FAIL] This script cannot be run directly.")
