@@ -188,8 +188,10 @@ class Adapter:                          # Parses entire output of the "svn propg
             for folder in arguments:
                 for value in self.results[parent][folder]:
                     if value is not None:
+                        # TODO: the change for value["LOCAL_REPO_PATH"] should be moved to process_directory
                         arguments = self.working_cpy_externals, value["LOCAL_REPO_NAME"],
                         value["LOCAL_REPO_PATH"] = self.create_root_subfolder(arguments)
+
                         result = git.svn.clone(value["URL"], value["REVISION"], value["LOCAL_REPO_PATH"])
                         log_file = value["LOCAL_REPO_PATH"] + "/.." + "/" + value["LOCAL_REPO_NAME"] + ".log"
                         with open(log_file) as log:
@@ -225,7 +227,9 @@ class Adapter:                          # Parses entire output of the "svn propg
                     if value is not None:
                         # destination path should be relative to the folder where we are calling for
                         # "git submodule add ..."
-                        value["DST_PATH"] = folder.replace(parent, "") + "/" + value["DST_PATH"];
+                        # TODO: The change to value["DST_PATH"] mast be moved to process_directory
+                        value["DST_PATH"] = folder.replace(parent, "") + "/" + value["DST_PATH"]
+
                         if value["DST_PATH"].startswith("/"):
                             value["DST_PATH"] = "." + value["DST_PATH"]
 
