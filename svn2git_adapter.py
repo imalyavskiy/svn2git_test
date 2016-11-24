@@ -191,10 +191,9 @@ class Adapter:                          # Parses entire output of the "svn propg
                         arguments = self.working_cpy_externals, value["LOCAL_REPO_NAME"],
                         value["LOCAL_REPO_PATH"] = self.create_root_subfolder(arguments)
                         result = git.svn.clone(value["URL"], value["REVISION"], value["LOCAL_REPO_PATH"])
-                        # TODO: write data to the file in one string of code, I read that this is possible
-                        log = open(value["LOCAL_REPO_PATH"] + "/.." + "/" + value["LOCAL_REPO_NAME"] + ".log", "wt")
-                        log.write(result)
-                        log.close()
+                        log_file = value["LOCAL_REPO_PATH"] + "/.." + "/" + value["LOCAL_REPO_NAME"] + ".log"
+                        with open(log_file) as log:
+                            log.write(result)
                         externals_list.write(value["LOCAL_REPO_NAME"] + " : -r" + value["REVISION"] + " " + value["URL"] + "\n")
 
         externals_list.close()
@@ -214,9 +213,9 @@ class Adapter:                          # Parses entire output of the "svn propg
             return False
 
         result = git.svn.clone(self.project_url, "HEAD", working_copy_path)
-        log = open(working_copy_path + "/.." + "/clone.log", "wt")
-        log.write(result)
-        log.close()
+
+        with open(working_copy_path + "/.." + "/clone.log", "wt") as log:
+            log.write(result)
 
         parents = self.results.keys()
         for parent in parents:
