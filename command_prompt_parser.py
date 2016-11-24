@@ -3,15 +3,17 @@ import sys
 import re_helpers
 
 # the Parser class is intended to read command line and provide settings read from keys
-
-
-class Parser:
+class Settings:
     def __init__(self):
         self.repository_url = ""
         self.repository_rev = ""
         self.working_copy_path = ""
         self.config_path = ""
-        self.cfg_create = False
+        self.blank_cfg_file = ""
+
+class Parser(Settings):
+    def __init__(self):
+        super().__init__()
 
         self.key_url = "--url"
         self.key_rev = "--revision"
@@ -24,21 +26,21 @@ class Parser:
         self.re_number = re_helpers.number_decimal
 
     def read(self):
-        cArg = 1
-        while cArg < len(sys.argv):
-            current = sys.argv[cArg]
+        c_arg = 1
+        while c_arg < len(sys.argv):
+            current = sys.argv[c_arg]
             if current == "--url":
-                cArg += self.read_url(sys.argv[cArg + 1])
+                c_arg += self.read_url(sys.argv[c_arg + 1])
             elif current == "--revision":
-                cArg += self.read_revision(sys.argv[cArg + 1])
+                c_arg += self.read_revision(sys.argv[c_arg + 1])
             elif current == "--path":
-                cArg += self.read_path(sys.argv[cArg + 1])
+                c_arg += self.read_path(sys.argv[c_arg + 1])
             elif current == "--config":
-                cArg += self.read_config(sys.argv[cArg + 1])
+                c_arg += self.read_config(sys.argv[c_arg + 1])
             elif current == "--cfgcreate":
-                self.cfg_create = True
+                c_arg += self.read_cfg_path(sys.argv[c_arg+1])
 
-            cArg += 1
+            c_arg += 1
 
         return True
 
@@ -49,16 +51,20 @@ class Parser:
         return False
 
     def read_revision(self, string):
-        if self.is_number(string):
+        if self.is_number(string) or string == "HEAD":
             self.repository_rev = string
-            return True
-        if string == "HEAD":
             return True
         return False
 
     def read_path(self, string):
         if self.is_path(string):
             self.working_copy_path = string
+            return True
+        return False
+
+    def read_cfg_path(self, string):
+        if self.is_path(string):
+            self.blank_cfg_file = string
             return True
         return False
 
@@ -87,11 +93,17 @@ class Parser:
         return False
 
     def __str__(self):
-        result  = "URL : \"" + self.repository_url + "\"\n"
-        result += "REVISION : \"" + self.repository_rev + "\"\n"
-        result += "PATH : \"" + self.working_copy_path + "\"\n"
-        result += "CONFIG : \"" + self.config_path + "\"\n"
-        result += "CFGCREATE : \"" + self.cfg_create + "\"\n"
+        result = ""
+        if len(self.repository_url):
+            result += "URL : \"" + self.repository_url + "\"\n"
+        if len(self.repository_rev):
+            result += "REVISION : \"" + self.repository_rev + "\"\n"
+        if len(self.working_copy_path):
+            result += "PATH : \"" + self.working_copy_path + "\"\n"
+        if len(self.config_path):
+            result += "CONFIG : \"" + self.config_path + "\"\n"
+        if len(self.blank_cfg_file):
+            result += "CFGCREATE : \"" + self.blank_cfg_file + "\"\n"
         return result
 
 
