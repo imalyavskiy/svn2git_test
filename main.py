@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import svn2git_adapter as svn2git
 import subversion_tools as svn
 import git_tools as git
 import settings_reader
@@ -37,15 +38,14 @@ def main():
     settings = settings_reader.Reader()
 
     if not check_binaries():
+        print("[FAIL] Required binaries check failed.")
         return False
 
-    if not settings.read():
-        return False
+    adapter = svn2git.Adapter()
 
-    if not settings.check():
+    if not settings.init(adapter):
+        print("[FAIL] Failed to initialize.")
         return False
-
-    adapter = settings.adapter      # adapter is ready to perform the job
 
     print("[ OK ] This is a valid svn URL.")
     print("[INFO] Starting with contents...")
