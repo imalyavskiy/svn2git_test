@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import json
 import subversion_tools as svn
 import git_tools as git
 import uuid
@@ -268,6 +268,17 @@ class Adapter:                          # Parses entire output of the "svn propg
             print("[ OK ] Created a \"{0}\" directory.".format(folder_path))
 
         return folder_path
+
+    def save_state_to(self, json_file_name):
+        with open(json_file_name, "wt") as json_file:
+            json.dump(self.results, json_file, indent=4, separators=(',', ': '))
+        return True
+
+    def load_state_from(self, json_file_name):
+        with open(json_file_name, "rt") as json_file:
+            self.results = json.load(json_file)
+        return True
+
 
 if __name__ == "__main__":
     print("[FAIL] This script cannot be run directly.")
