@@ -1,4 +1,13 @@
 TODO:
+    * separate settings storage object
+        - move command_prompt_parser.Settings class to a separate module or main.py
+        - pass it to settings reader
+    * separate adapter
+        - mode adapter instantiation to main.py
+        - tune it up with settings object
+    * store settings to intermediate json file
+        - the json file should contain all information
+    * recover from json file
     * Create an entity which will form correct paths depending on the operating system we are running
        See svn_2git_adapter.py:create_root_subfolder
     * In case if path to save the working copy starts with ~\ on linux - we are crashing
