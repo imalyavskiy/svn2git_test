@@ -30,14 +30,19 @@ class Parser(Settings):
         while c_arg < len(sys.argv):
             current = sys.argv[c_arg]
             if current == "--url":
+                #TODO: errors handling
                 c_arg += self.read_url(sys.argv[c_arg + 1])
             elif current == "--revision":
+                # TODO: errors handling
                 c_arg += self.read_revision(sys.argv[c_arg + 1])
             elif current == "--path":
+                # TODO: errors handling
                 c_arg += self.read_path(sys.argv[c_arg + 1])
             elif current == "--config":
+                # TODO: errors handling
                 c_arg += self.read_config(sys.argv[c_arg + 1])
             elif current == "--cfgcreate":
+                # TODO: errors handling
                 c_arg += self.read_cfg_path(sys.argv[c_arg+1])
 
             c_arg += 1
