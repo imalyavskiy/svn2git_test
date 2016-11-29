@@ -36,7 +36,7 @@ leading_space = re.compile(
 
 path_absolute = \
     re.compile(
-        "(([A-Za-z]:)|(~))?(((\\\\)|(/))[\w.]*)*((\\\\)|(/))?"  # "[d:]<\|/><dir name><\|/><dir name>[\|/]"
+        "(([A-Za-z]:)|(~))?(((\\\\)|(/))[\w.#]*)*((\\\\)|(/))?"  # "[d:]<\|/><dir name><\|/><dir name>[\|/]"
     )
 
 subversion_external_property_item = re.compile(
