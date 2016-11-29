@@ -8,6 +8,8 @@ TODO:
     * store settings to intermediate json file
         - the json file should contain all information
     * recover from json file
+    * while resolving externals add a counter (total/current)
+    * create a logger that will be tee the output into console log file and in the same time to the console
     * Create an entity which will form correct paths depending on the operating system we are running
        See svn_2git_adapter.py:create_root_subfolder
     * In case if path to save the working copy starts with ~\ on linux - we are crashing
