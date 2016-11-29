@@ -194,9 +194,9 @@ class Adapter:                          # Parses entire output of the "svn propg
 
                         result = git.svn.clone(value["URL"], value["REVISION"], value["LOCAL_REPO_PATH"])
                         log_file = value["LOCAL_REPO_PATH"] + "/.." + "/" + value["LOCAL_REPO_NAME"] + ".log"
-                        with open(log_file) as log:
+                        with open(log_file, "wt") as log:
                             log.write(result)
-                        externals_list.write(value["LOCAL_REPO_NAME"] + " : -r" + value["REVISION"] + " " + value["URL"] + "\n")
+                        externals_list.write(value["LOCAL_REPO_NAME"] + " : -r" + value["REVISION"] + " " + value["URL"] + " " + value["DST_PATH"] + "\n")
 
         externals_list.close()
         return True
@@ -255,6 +255,7 @@ class Adapter:                          # Parses entire output of the "svn propg
                             path=value["DST_PATH"],
                             cwd=self.path_working_cpy_root + "/" + self.working_cpy_placement
                         )
+                        print("[INFO] Result\n{0}\n".format(result))
             return True
 
     def create_root_subfolder(self, folders):
