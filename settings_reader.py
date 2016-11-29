@@ -23,9 +23,7 @@ class Reader(command_prompt_parser.Parser):
             print("[FAIL] no arguments provided. Don't know what to do.")
             return False
 
-        if not (len(self.config_path) and os.path.isfile(self.config_path)):
-            print("[WARN] The \"{0}\" config file does not exist".format(self.config_path))
-        else:
+        if len(self.config_path) and os.path.isfile(self.config_path):
             with open(self.config_path, "rt") as config:
                 lines = config.readlines()  # the config file is closed automatically at the end of the block
 
